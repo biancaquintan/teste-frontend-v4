@@ -1,6 +1,16 @@
 import { useJsApiLoader, GoogleMap, Marker } from '@react-google-maps/api'
 import { useState, useEffect } from 'react'
 
+type Equipment = {
+  equipmentId: string
+  positions: { date: string; lat: number; lon: number }[]
+}
+
+const defaultCenter = {
+  lat: -3.745,
+  lng: -38.523
+}
+
 function Map() {
   const gMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
@@ -8,16 +18,6 @@ function Map() {
     id: 'google-map-script',
     googleMapsApiKey: gMapsApiKey
   })
-
-  const center = {
-    lat: -3.745,
-    lng: -38.523
-  }
-
-  type Equipment = {
-    equipmentId: string
-    positions: { date: string; lat: number; lon: number }[]
-  }
 
   const [equipments, setEquipments] = useState<Equipment[]>([])
 
@@ -33,20 +33,24 @@ function Map() {
       {isLoaded ? (
         <GoogleMap
           mapContainerStyle={{ height: '100%' }}
-          center={center}
+          center={defaultCenter}
           zoom={5}
         >
-          {equipments.map(equipment =>
-            equipment.positions.map((pos, index) => (
+          {equipments.map(equipment => {
+            const latestPos = equipment.positions.reduce((a, b) =>
+              new Date(a.date) > new Date(b.date) ? a : b
+            )
+
+            return (
               <Marker
-                key={`${equipment.equipmentId}-${index}`}
-                position={{ lat: pos.lat, lng: pos.lon }}
+                key={equipment.equipmentId}
+                position={{ lat: latestPos.lat, lng: latestPos.lon }}
                 title={`Equipamento: ${equipment.equipmentId} - ${new Date(
-                  pos.date
+                  latestPos.date
                 ).toLocaleString()}`}
               />
-            ))
-          )}
+            )
+          })}
         </GoogleMap>
       ) : (
         <></>
