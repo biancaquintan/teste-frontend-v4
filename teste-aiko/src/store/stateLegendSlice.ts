@@ -20,19 +20,33 @@ const initialState: State = {
   error: null
 }
 
-export const fetchStateLegend = createAsyncThunk(
-  'stateLegend/fetch',
-  async () => {
+export const fetchStateLegend = createAsyncThunk<
+  StateLegend,
+  void,
+  { rejectValue: string }
+>('stateLegend/fetch', async (_, { rejectWithValue }) => {
+  try {
     const res = await fetch('/data/equipmentState.json')
+
+    if (!res.ok) {
+      throw new Error(`Erro HTTP: ${res.status}`)
+    }
+
     const json: StateDefinition[] = await res.json()
 
     const legend = json.reduce((acc, item) => {
       acc[item.id] = item
       return acc
-    }, {} as Record<string, StateDefinition>)
+    }, {} as StateLegend)
+
     return legend
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      return rejectWithValue(error.message)
+    }
+    return rejectWithValue('Erro desconhecido')
   }
-)
+})
 
 const stateLegendSlice = createSlice({
   name: 'stateLegend',
@@ -53,7 +67,7 @@ const stateLegendSlice = createSlice({
       )
       .addCase(fetchStateLegend.rejected, (state, action) => {
         state.loading = false
-        state.error = 'Erro ao carregar legenda de estados'
+        state.error = action.payload ?? 'Erro ao carregar legenda de estados'
       })
   }
 })
