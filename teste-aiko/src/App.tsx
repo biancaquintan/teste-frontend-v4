@@ -3,12 +3,14 @@ import Map from './components/Map'
 import { useState } from 'react'
 
 function App() {
-  const [visible, setVisible] = useState(false)
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null)
 
   const showHistory = (id: string) => {
-    setSelectedId(id)
-    setVisible(true)
+    setSelectedEquipmentId(id)
+  }
+
+  const clearSelection = () => {
+    setSelectedEquipmentId(null)
   }
 
   return (
@@ -19,13 +21,10 @@ function App() {
       </nav>
       <div className="grid grid-cols-2 grid-rows-1 p-4 mx-5 mb-5 mt-1 bg-white rounded-2xl">
         <div className="flex items-center justify-center">
-          {visible && selectedId ? (
+          {selectedEquipmentId ? (
             <EquipmentStateHistory
-              equipmentId={selectedId}
-              clearItem={() => {
-                setSelectedId(null)
-                setVisible(false)
-              }}
+              equipmentId={selectedEquipmentId}
+              clearItem={clearSelection}
             />
           ) : (
             <div className="text-gray-500 italic">
@@ -34,7 +33,10 @@ function App() {
           )}
         </div>
         <div className="flex items-center justify-center">
-          <Map onShowHistory={showHistory} />
+          <Map
+            onShowHistory={showHistory}
+            selectedEquipmentId={selectedEquipmentId}
+          />
         </div>
       </div>
     </div>
