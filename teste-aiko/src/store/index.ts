@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit'
 import stateLegendReducer from './stateLegendSlice'
+import equipmentListReducer from './equipmentListSlice'
+import equipmentModelReducer from './equipmentModelSlice'
 
 export const store = configureStore({
   reducer: {
-    stateLegend: stateLegendReducer
+    stateLegend: stateLegendReducer,
+    equipmentList: equipmentListReducer,
+    equipmentModel: equipmentModelReducer
   }
 })
 

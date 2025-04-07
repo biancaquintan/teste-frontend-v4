@@ -1,12 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit'
-
-export type StateDefinition = {
-  id: string
-  name: string
-  color: string
-}
-
-type StateLegend = Record<string, StateDefinition>
+import { StateDefinition, StateLegend } from '@/types/equipment'
 
 type State = {
   data: StateLegend

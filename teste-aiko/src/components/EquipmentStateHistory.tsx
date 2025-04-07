@@ -37,9 +37,12 @@ export default function EquipmentStateHistory({
   return (
     <div className="p-4 border rounded-md shadow bg-white max-w-md">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="text-lg font-semibold">Histórico do Equipamento</h2>
-        <button onClick={clearItem} className="text-sm text-red-500">
-          Limpar seleção
+        <h2 className="text-lg font-semibold">Histórico de Estados</h2>
+        <button
+          onClick={clearItem}
+          className="px-3 py-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200"
+        >
+          x
         </button>
       </div>
 
@@ -57,7 +60,7 @@ export default function EquipmentStateHistory({
               const legend = stateLegend[state.equipmentStateId]
               return (
                 <li key={index}>
-                  {new Date(state.date).toLocaleString()} –{' '}
+                  {new Date(state.date).toLocaleString()} (
                   <span
                     className="font-medium"
                     style={{ color: legend?.color ?? '#000' }}
@@ -65,6 +68,7 @@ export default function EquipmentStateHistory({
                     {legend?.name ??
                       `Estado desconhecido (${state.equipmentStateId})`}
                   </span>
+                  )
                 </li>
               )
             })}
