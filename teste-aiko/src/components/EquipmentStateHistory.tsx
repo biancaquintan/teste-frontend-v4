@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/store'
-
-type EquipmentState = {
-  date: string
-  equipmentStateId: string
-}
+import { EquipmentState } from '@/types/equipment'
 
 type EquipmentStateHistoryProps = {
   equipmentId: string
   clearItem: () => void
+  equipmentName: string
+  model: string
 }
 
 export default function EquipmentStateHistory({
   equipmentId,
-  clearItem
+  clearItem,
+  equipmentName,
+  model
 }: EquipmentStateHistoryProps) {
   const [states, setStates] = useState<EquipmentState[]>([])
   const stateLegend = useSelector((state: RootState) => state.stateLegend.data)
@@ -35,23 +35,38 @@ export default function EquipmentStateHistory({
   }, [equipmentId])
 
   return (
-    <div className="p-4 border rounded-md shadow bg-white max-w-md">
+    <div className="p-4 border rounded-md shadow bg-white">
       <div className="flex justify-between items-center mb-2">
         <h2 className="text-lg font-semibold">Histórico de Estados</h2>
         <button
           onClick={clearItem}
+          title="Fechar"
           className="px-3 py-1 rounded bg-gray-100 border border-gray-300 hover:bg-gray-200"
         >
           x
         </button>
       </div>
 
-      <p className="text-sm text-gray-600 mb-2">ID: {equipmentId}</p>
+      <hr />
+      <span>
+        <ul className="space-y-2 my-3 text-sm ">
+          <li>
+            <b>Equipamento:</b> {equipmentName}
+          </li>
+          <li>
+            <b>ID:</b> {equipmentId}
+          </li>
+          <li>
+            <b>Modelo:</b> {model}
+          </li>
+        </ul>
+      </span>
+      <hr />
 
       {loadingLegend ? (
         <p className="text-sm text-gray-500">Carregando legenda...</p>
       ) : states.length > 0 ? (
-        <ul className="text-sm space-y-1 max-h-64 overflow-y-auto">
+        <ul className="text-sm space-y-2 max-h-64 overflow-y-auto font-light mt-3">
           {states
             .sort(
               (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()

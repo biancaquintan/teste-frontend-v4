@@ -11,6 +11,8 @@
       "@/*": ["*"]
     },
 
+    "noImplicitAny": true,
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
