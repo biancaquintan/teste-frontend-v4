@@ -26,6 +26,7 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
   const dispatch = useAppDispatch()
   const mapRef = useRef<google.maps.Map | null>(null)
   const searchInputRef = useRef<HTMLInputElement | null>(null)
+  const [zoomLevel, setZoomLevel] = useState<number>(8)
 
   const [equipments, setEquipments] = useState<EquipmentTrack[]>([])
   const [latestStates, setLatestStates] = useState<Record<string, string>>({})
@@ -48,6 +49,20 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
 
   useEffect(() => void dispatch(fetchStateLegend()), [dispatch])
   useEffect(() => void dispatch(fetchEquipmentList()), [dispatch])
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      const listener = map.addListener('zoom_changed', () => {
+        setZoomLevel(map.getZoom() || 8);
+      });
+  
+      return () => {
+        google.maps.event.removeListener(listener);
+      };
+    }
+  }, []);
+  
 
   useEffect(() => {
     fetch('/data/equipmentPositionHistory.json')
@@ -153,7 +168,14 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
     <div className="w-full h-full relative">
       {!loadingLegend && isLoaded && (
         <>
-          <div className="absolute top-3 left-3 z-10 bg-white p-3 rounded-lg shadow-md w-[22rem] space-y-2">
+          <div
+            className="absolute top-3 left-3 z-10 bg-white p-3 rounded-lg shadow-md max-w-full space-y-2"
+            style={{
+              width: `calc(70% - 2rem)`,
+              transform: `scale(${Math.max(0.8, 1 - zoomLevel * 0.05)})`,
+              transformOrigin: 'top left'
+            }}
+          >
             <input
               ref={searchInputRef}
               type="text"
@@ -161,9 +183,9 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
               onChange={handleSearch}
               className="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring"
             />
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <select
-                className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                className="flex-1 min-w-[10rem] border border-gray-300 rounded px-2 py-1 text-sm"
                 value={selectedModel ?? ''}
                 onChange={e => setSelectedModel(e.target.value || null)}
               >
@@ -175,7 +197,7 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
                 ))}
               </select>
               <select
-                className="flex-1 border border-gray-300 rounded px-2 py-1 text-sm"
+                className="flex-1 min-w-[10rem] border border-gray-300 rounded px-2 py-1 text-sm"
                 value={selectedState ?? ''}
                 onChange={e => setSelectedState(e.target.value || null)}
               >
@@ -198,7 +220,7 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
           <GoogleMap
             mapContainerStyle={{ height: '100%' }}
             center={defaultCenter}
-            zoom={8}
+            zoom={zoomLevel}
             options={{
               mapTypeControl: true,
               mapTypeControlOptions: {
@@ -268,7 +290,13 @@ function Map({ onShowHistory, selectedEquipmentId }: MapProps) {
             })}
           </GoogleMap>
 
-          <div className="absolute bottom-5 right-15 bg-white p-4 rounded-xl shadow-lg z-10 w-40 font-light">
+          <div
+            className="absolute bottom-5 right-15 bg-white p-4 rounded-xl shadow-lg z-10 w-40 font-light max-h-[50vh] overflow-y-auto"
+            style={{
+              transform: `scale(${Math.max(0.5, 1 - zoomLevel * 0.05)})`,
+              transformOrigin: 'bottom right'
+            }}
+          >
             <h2 className="font-semibold text-gray-700 mb-2">Legenda</h2>
             <ul className="space-y-1">
               {Object.values(stateLegend).map(legend => (
